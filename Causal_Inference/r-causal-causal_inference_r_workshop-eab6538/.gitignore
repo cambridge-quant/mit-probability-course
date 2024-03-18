@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+render_pdf.R
+.DS_Store
+
+/.quarto/
+slides/raw/12-whole_game-2-uh-oh.qmd
+slides/raw/12-whole_game-2-uh-oh_files/
+slides/raw/12-whole_game-2-uh-oh.html

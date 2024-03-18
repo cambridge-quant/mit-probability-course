@@ -66,6 +66,8 @@ studio4_problem_1a = function(n_together, n_Barto_alone, ntrials) {
   cat("Their sample correlation is", ab_cor, '\n')
 }
 
+cat("-----\n")
+cat("Testing\n")
 
 # 1b. Print your description of what happens as n_Barto_alone increases
 studio4_problem_1b = function() {

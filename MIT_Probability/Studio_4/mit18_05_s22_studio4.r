@@ -66,9 +66,6 @@ studio4_problem_1a = function(n_together, n_Barto_alone, ntrials) {
   cat("Their sample correlation is", ab_cor, '\n')
 }
 
-cat("-----\n")
-cat("Testing\n")
-
 # 1b. Print your description of what happens as n_Barto_alone increases
 studio4_problem_1b = function() {
   cat("-----\n")
@@ -77,8 +74,8 @@ studio4_problem_1b = function() {
   # Do not change the above code.
   # ********* YOUR CODE BELOW HERE ***********
 
-  cat('As n_Barto_alone increases, the covariance, YOUR_DESCRIPTION_HERE. \n')
-  cat('As n_Barto_alone increases, the correlation, YOUR_DESCRIPTION_HERE. \n')
+  cat('As n_Barto_alone increases, the covariance, decreases. \n')
+  cat('As n_Barto_alone increases, the correlation, decreases. \n')
 }
 
 #-------------------------------------
@@ -94,7 +91,16 @@ studio4_problem_2 = function(n_bets_per_trial, ntrials) {
 
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
+  one_bet_values = c(1, -1)
+  one_bet_probs = c(18/38, 20/38)
 
+  x = sample(one_bet_values, ntrials*n_bets_per_trial,
+             replace=TRUE, prob=one_bet_probs)
+  data = matrix(x, ncol=ntrials)
+  outcomes = colSums(data)
+  hist(outcomes, col='orange', freq=FALSE)
+  x = seq(min(outcomes)-1, max(outcomes)+1, 0.01)
+  lines(x, dnorm(x, -2*n_bets_per_trial/38, sqrt(n_bets_per_trial*360/361)), col='blue', lwd=2)
 
   #------
   cat('See plot\n')

@@ -1,5 +1,5 @@
 #---------------------------------------------------------
-# File:   mit18_05_s22_studio5.r 
+# File:   mit18_05_s22_studio5.r
 # Authors: Jeremy Orloff and Jennifer French
 #
 # MIT OpenCourseWare: https://ocw.mit.edu
@@ -38,6 +38,7 @@ studio5_problem_0a = function() {
 
   # Do not change the above code.
   # ********* YOUR CODE BELOW HERE ***********
+  print(DICE_TYPES)
 
 }
 
@@ -95,7 +96,7 @@ studio5_problem_1b = function(prior,
   cat('The initial prior is\n')
   print(prior, digits=4)
   cat('nrolls =', nrolls, '\n')
-  
+
   # Do not change the above code.
   # ********* YOUR CODE BELOW HERE ***********
 

@@ -50,6 +50,11 @@ studio5_problem_0b = function() {
 
   # Do not change the above code.
   # ********* YOUR CODE BELOW HERE ***********
+  prior = c(1/5, 1/5, 1/5, 1/5, 1/5)
+  random_die = sample(DICE, 1, prob=prior)
+  cat('random_die:', random_die, '\n')
+  outcomes = 1:random_die
+  cat('possible outcomes =', outcomes, '\n')
 
 }
 
@@ -61,6 +66,14 @@ studio5_problem_0c = function() {
 
   # Do not change the above code.
   # ********* YOUR CODE BELOW HERE ***********
+  likelihood_table = matrix(0, nrow=length(DICE), ncol=max(DICE))
+  # Name the rows and columns
+  rownames(likelihood_table) = DICE_TYPES
+  colnames(likelihood_table) = 1:max(DICE)
+  for (i in 1:length(DICE)) {
+    likelihood_table[i, 1:DICE[i]] = 1/DICE[i]
+  }
+  print(likelihood_table, digits=3)
 
 }
 
@@ -85,7 +98,7 @@ studio5_problem_1b = function(prior,
   cat("1b. Updates, bar plots, stacked bar plot.\n")
 
   # Arguments:
-  #  prior = prior probilities for the type of die use to generate data
+  #  prior = prior probabilities for the type of die use to generate data
   #  nrolls = number of rolls to simulate
   #  plot_individual_posteriors = whether or not to make individual bar charts
 
@@ -99,7 +112,42 @@ studio5_problem_1b = function(prior,
 
   # Do not change the above code.
   # ********* YOUR CODE BELOW HERE ***********
-
+  likelihood_table = matrix(0, nrow=length(DICE), ncol=max(DICE))
+  # Name the rows and columns
+  rownames(likelihood_table) = DICE_TYPES
+  colnames(likelihood_table) = 1:max(DICE)
+  for (i in 1:length(DICE)) {
+    likelihood_table[i, 1:DICE[i]] = 1/DICE[i]
+  }
+  if (plot_individual_posteriors) {
+    title = "Prior Probabilities"
+    barplot(prior, col='blue', width=rep(0.1, 5), xlim=c(0, length(DICE)), space=5, names=DICE, main=title)
+  }
+  posterior_mat = matrix(NA, nrow=length(DICE), ncol=nrolls)
+  prior.jroll = prior
+  for (jroll in 1:nrolls){
+    x.jroll = data_rolls[jroll]
+    likelihood.jroll = likelihood_table[,x.jroll]
+    bayes_numerator.jroll = prior.jroll * likelihood.jroll
+    posterior.jroll = bayes_numerator.jroll/sum(bayes_numerator.jroll)
+    posterior_mat[,jroll] = posterior.jroll
+    if (plot_individual_posteriors) {
+      title = paste("Posterior prob. after roll ", jroll, ": outcome =", x.jroll)
+      barplot(posterior.jroll, col='orange', width=rep(0.1, 5),  xlim=c(0, 3), space=3, names=DICE, main=title)
+    }
+    prior.jroll = posterior.jroll
+  }
+  all_probs = cbind(prior, posterior_mat)
+  barplot(all_probs, names.arg=c("0(Prior)", c(1:nrolls)), col=rainbow(length(DICE)), border=NA, space=0)
+  title(xlab="Number of Rolls")
+  title("Stacked Barplot of Posterior Probabilities")
+  legend("topleft", legend=paste("D", DICE, sep=""),
+         col=rainbow(length(DICE)), pch=15, horiz=TRUE, cex=0.8)
+  final_posterior = matrix(posterior_mat[,nrolls], nrow=1)
+  colnames(final_posterior) = DICE_TYPES
+  cat('The final posterior is\n')
+  print(final_posterior, digits=4)
+  cat('The true type of the chosen die is', random_die, 'sided\n')
 
   cat('See plots\n')
 }
@@ -111,8 +159,13 @@ studio5_problem_1c = function() {
 
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
+  prior = c(0.2, 0.2, 0.2, 0.2, 0.2)
+  studio5_problem_1b(prior, 20, FALSE)
 
-  cat("You need to put your answer here.\n")
+  prior = c(0.001, 0.001, 0.001, 0.001, 0.996)
+  studio5_problem_1b(prior, 20, FALSE)
+
+  cat("More rolls required for greater certainty in second case.\n")
 }
 
 # Problem 1d: Too certain a prior. ----
@@ -127,8 +180,7 @@ studio5_problem_1d = function() {
 
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
-
-  cat("You should put your answer here\n")
+  cat("The probability of D8 remains zero\n")
 }
 
 
@@ -143,6 +195,15 @@ studio5_problem_2a = function() {
 
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
+  likelihood_table = matrix(0, nrow=length(DICE), ncol=2)
+  # Name the rows and columns
+  rownames(likelihood_table) = DICE_TYPES
+  colnames(likelihood_table) = 0:1
+  for (i in 1:length(DICE)) {
+    likelihood_table[i, 1] = (DICE[i] - 1)/DICE[i]
+    likelihood_table[i, 2] = 1/DICE[i]
+  }
+  print(likelihood_table, digits=3)
 
 }
 
@@ -157,8 +218,42 @@ studio5_problem_2b = function(prior, nrolls) {
 
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
+  random_die = sample(DICE, 1, prob=prior)
+  data_rolls = sample(0:1, size=nrolls, prob=c((random_die - 1)/random_die, 1/random_die), replace=TRUE)
+  cat('The initial prior is\n')
+  print(prior, digits=4)
+  cat('nrolls =', nrolls, '\n')
 
+  likelihood_table = matrix(0, nrow=length(DICE), ncol=2)
+  # Name the rows and columns
+  rownames(likelihood_table) = DICE_TYPES
+  colnames(likelihood_table) = 0:1
+  for (i in 1:length(DICE)) {
+    likelihood_table[i, 1] = (DICE[i] - 1)/DICE[i]
+    likelihood_table[i, 2] = 1/DICE[i]
+  }
 
+  posterior_mat = matrix(NA, nrow=length(DICE), ncol=nrolls)
+  prior.jroll = prior
+  for (jroll in 1:nrolls){
+    x.jroll = data_rolls[jroll]
+    likelihood.jroll = likelihood_table[,x.jroll+1]
+    bayes_numerator.jroll = prior.jroll * likelihood.jroll
+    posterior.jroll = bayes_numerator.jroll/sum(bayes_numerator.jroll)
+    posterior_mat[,jroll] = posterior.jroll
+    prior.jroll = posterior.jroll
+  }
+  all_probs = cbind(prior, posterior_mat)
+  barplot(all_probs, names.arg=c("0(Prior)", c(1:nrolls)), col=rainbow(length(DICE)), border=NA, space=0)
+  title(xlab="Number of Rolls")
+  title("Stacked Barplot of Posterior Probabilities")
+  legend("topleft", legend=paste("D", DICE, sep=""),
+         col=rainbow(length(DICE)), pch=15, horiz=TRUE, cex=0.8)
+  final_posterior = matrix(posterior_mat[,nrolls], nrow=1)
+  colnames(final_posterior) = DICE_TYPES
+  cat('The final posterior is\n')
+  print(final_posterior, digits=4)
+  cat('The true type of the chosen die is', random_die, 'sided\n')
 
   cat('See plots\n')
 }

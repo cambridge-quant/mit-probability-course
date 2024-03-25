@@ -1,5 +1,5 @@
 #---------------------------------------------------------
-# File:   mit18_05_s22_studio6.r 
+# File:   mit18_05_s22_studio6.r
 # Authors: Jeremy Orloff and Jennifer French
 #
 # MIT OpenCourseWare: https://ocw.mit.edu
@@ -20,7 +20,7 @@
 #--------------------------------------
 # Problem 0: Averaging normal distributions.
 # See instructions for this studio
-studio6_problem_0 = function() { 
+studio6_problem_0 = function() {
   cat("\n----------------------------------\n")
   cat("Problem 0: Averaging normal distributions \n")
 
@@ -31,7 +31,7 @@ studio6_problem_0 = function() {
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
 
-  cat('0. PUT YOUR COMPARISON OF THE HISTOGRAMS HERE.\n')
+  cat('The variance decreases when averages from multiple draws are used.\n')
 }
 
 #---------------------------
@@ -46,7 +46,7 @@ studio6_problem_1a = function() {
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
 
-  cat("1a. PUT THE FORMULA f(x | theta) FOR THE CAUCHY DISTRIBUTION HERE.\n")
+  cat("1a. f(x | theta) = (pi * (1 + (x - theta)^2))^-1.\n")
 }
 
 
@@ -58,7 +58,13 @@ studio6_problem_1b = function() {
 
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
-
+  xmin = -3
+  xmax = 3
+  x = seq(xmin, xmax, 0.01)
+  y_norm = dnorm(x, 0, 1)
+  y_cauchy = dcauchy(x, 0, 1)
+  plot(x, y_norm, type='l', xlab='theta', ylab='pdf', col='orange', lwd=2)
+  lines(x, y_cauchy, col='blue', lwd=2)
 
   cat("1b. See plots\n")
 }
@@ -68,11 +74,13 @@ studio6_problem_1c = function() {
   cat("-----\n")
   cat("1c. Explain fat tails\n")
 
-  
+
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
 
-  cat("1c. Answer: PUT YOUR EXPLANATION FOR FAT TAILS HERE.\n")
+  cat("1c. Answer: The peak of the Cauchy distribution is less than the Normal distribution.\n")
+  cat("1c. But they must have equal area since the total area = total probability = 1.\n")
+  cat("1c. Therefore the Cauchy distribution must have fatter tails.\n")
 }
 
 # Problem 1d: Average of Cauchy
@@ -84,7 +92,7 @@ studio6_problem_1d = function() {
   # No code to write. Just run this code
   source('mit18_05_s22_studio6_problem_1d.r')
 
- 
+
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
 
@@ -111,7 +119,7 @@ studio6_problem_2a = function(data_frame_csv) {
 
   # Do not change the above code.
   # ********* YOUR CODE BELOW HERE ***********
-
+  plot(position_data, type='p', pch=19, col='blue', main='Plot of data')
 
   cat("2a. See plot\n")
 }
@@ -136,11 +144,42 @@ studio6_problem_2b = function(data_frame_csv) {
 
   # Do not change the above code.
   # ********* YOUR CODE FOR HERE***********
+  ndata = length(position_data)
+  discrete_theta_range = seq(theta_min, theta_max, dtheta)
+  unnormalized_prior = dunif(discrete_theta_range, theta_min, theta_max)
+  discrete_prior = unnormalized_prior/(sum(unnormalized_prior))
+  posterior_mat = matrix(NA, nrow=length(discrete_theta_range), ncol=ndata)
+  scale = 1.0
+  prior = discrete_prior
+  for (j in 1:ndata) {
+    x = position_data[j]
+    likelihood = dcauchy(x, location = discrete_theta_range, scale = scale)
+    bayes_numerator = likelihood*prior
+    posterior = bayes_numerator/(sum(bayes_numerator))
+    posterior_mat[,j] = posterior
+    prior = posterior
+  }
 
+  ymin = 0
+  ymax = max(posterior_mat, discrete_prior)
+  plot(c(theta_min, theta_max), c(ymin, ymax), type='n', xlab="theta", ylab="pdf")
+  lines(discrete_theta_range, discrete_prior, col='red')
+  for (j in 1:ndata) {
+    lines(discrete_theta_range, posterior_mat[,j], col=j)
+  }
 
+  MAP_estimates = rep(0, ndata)
+  for (j in 1:ndata) {
+    k = which.max(posterior_mat[,j])
+    MAP_estimates[j] = discrete_theta_range[k]
+  }
+  plot(MAP_estimates, type='p', col='blue', pch=19, xlab="index")
+
+  plot(discrete_theta_range, posterior_mat[,ndata], type='l',col='orange', lwd=2,  xlab='theta', ylab='posterior')
+  abline(v=MAP_estimates[ndata], col='blue', lty='dashed')
 
   # 2b(vi) Where to look
-  cat("2b(vi). GIVE YOUR CONCLUSION ON WHERE TO LOOK.\n")
+  cat("2b(vi). You should look at =", MAP_estimates[ndata], "\n")
 }
 
 # Problem 2c:. OPTIONAL Explanation ----

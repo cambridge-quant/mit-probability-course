@@ -1,5 +1,5 @@
 #---------------------------------------------------------
-# File:   mit18_05_s22_studio7.r 
+# File:   mit18_05_s22_studio7.r
 # Authors: Jeremy Orloff and Jennifer French
 #
 # MIT OpenCourseWare: https://ocw.mit.edu
@@ -40,14 +40,18 @@ studio7_problem_1 = function(theta_HA, alpha, n_tosses) {
     return()
   }
 
-  
+
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
 
+  critical_right = qbinom(1 - alpha, n_tosses, theta_H0) + 1
+  reject_region_right = critical_right:n_tosses
+  alpha_actual_right = sum(dbinom(reject_region_right, n_tosses, theta_H0))
+  experiment_power = sum(dbinom(reject_region_right, n_tosses, theta_HA))
 
-  cat("  Rejection region: ", "PRINT THE REJECTION REGION","\n")
-  cat("  True significance=", "PRINT THE TRUE SIGNIFICANCE",'\n')
-  cat("  Power=", "PRINT THE POWER",'\n')
+  cat("  Rejection region: ", reject_region_right,"\n")
+  cat("  True significance =", alpha_actual_right,'\n')
+  cat("  Power =", experiment_power,'\n')
 }
 
 
@@ -78,19 +82,50 @@ studio7_problem_2 = function(theta_HA, alpha, n_tosses, n_trials, secret_prior) 
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
 
+  theta_values = c(theta_H0, theta_HA)
+  crit_right = qbinom(1 - alpha, n_tosses, theta_H0) + 1
+  reject_region_right = crit_right:n_tosses
 
+  n_H0_and_reject = 0     # type 1 error
+  n_H0_and_nonreject = 0  # correct decision
+  n_HA_and_reject = 0     # correct decision
+  n_HA_and_nonreject = 0  # type 2 error
+  for (j in 1:n_trials) {
+    # Choose a coin -- H0, HA coin with given prior
+    theta = sample(theta_values, 1, prob=secret_prior)
 
-  cat("  theta_HA=", theta_HA, ", alpha=", alpha, '\n', sep='')
-  cat("  n_tosses=", n_tosses, ", n_trials=", n_trials, '\n', sep='')
-  cat("  secret_prior=", secret_prior, '\n')
-  cat("  Number of rejections: ", "PRINT NUMBER OF REJECTIONS", '\n')
-  cat("  Number of type 1: ", "PRINT NUMBER OF TYPE 1 ERRORS", '\n')
-  cat("  Number of type 2: ", "PRINT NUMBER OF TYPE 2 ERRORS", '\n')
-  cat("  P(rejection | H0): ", "PRINT THE PROBABILITY", '\n')
-  cat("  P(H0 | rejection): ", "PRINT THE PROBABILITY", '\n')
-  cat("  P(rejection | HA): ", "PRINT THE PROBABILITY", '\n')
-  cat("  P(HA | rejection): ", "PRINT THE PROBABILITY", '\n')
-  cat("  P(rejection): ", "PRINT THE PROBABILITY", '\n')
+    # toss the coin n_tosses times = 1 sample from binom(n_tosses, theta)
+    x = rbinom(1, n_tosses, theta)
+    # check if we reject
+    if (x %in% reject_region_right) {
+      if (theta == theta_H0) { n_H0_and_reject = n_H0_and_reject + 1 }
+      else { n_HA_and_reject = n_HA_and_reject + 1 }
+    }
+    else { # nonreject
+      if (theta == theta_H0) { n_H0_and_nonreject = n_H0_and_nonreject + 1 }
+      else { n_HA_and_nonreject = n_HA_and_nonreject + 1 }
+    }
+  }
+  n_H0 = n_H0_and_nonreject + n_H0_and_reject
+  n_HA = n_HA_and_nonreject + n_HA_and_reject
+  n_reject = n_H0_and_reject + n_HA_and_reject
+  prob_reject_given_H0 = n_H0_and_reject/n_H0
+  prob_H0_given_reject = n_H0_and_reject/n_reject
+  prob_reject_given_HA = n_HA_and_reject/n_HA
+  prob_HA_given_reject = n_HA_and_reject/n_reject
+  prob_reject = n_reject/n_trials
+
+  cat("  theta_HA = ", theta_HA, ", alpha = ", alpha, '\n', sep='')
+  cat("  n_tosses = ", n_tosses, ", n_trials = ", n_trials, '\n', sep='')
+  cat("  secret_prior =", secret_prior, '\n')
+  cat("  Number of rejections: ", n_reject, '\n')
+  cat("  Number of type 1: ", n_H0_and_reject, '\n')
+  cat("  Number of type 2: ", n_HA_and_nonreject, '\n')
+  cat("  P(rejection | H0): ", prob_reject_given_H0, '\n')
+  cat("  P(H0 | rejection): ", prob_H0_given_reject, '\n')
+  cat("  P(rejection | HA): ", prob_reject_given_HA, '\n')
+  cat("  P(HA | rejection): ", prob_HA_given_reject, '\n')
+  cat("  P(rejection): ", prob_reject, '\n')
 }
 
 #--------------------
@@ -110,7 +145,9 @@ studio7_problem_3a = function(theta_HA, alpha, n_tosses, n_trials) {
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
 
-  cat("  EXPLAIN THE RESULTS\n")
+  cat("  P(rejection | H0) = significance and we saw the simulated probability was approximately the true significance given in problem 1.", "\n\n")
+  cat("  P(H0 | rejection) = 1 because we (being omniscient) know the coin is fair, so all rejections are incorrect, i.e. type 1 errors.", "\n\n")
+  cat("  HA is never true, so   P(HA | rejection) = 0   and   P(rejection | HA) is undefined.", "\n")
 }
 
 studio7_problem_3b = function(theta_HA, alpha, n_tosses, n_trials) {
@@ -126,7 +163,9 @@ studio7_problem_3b = function(theta_HA, alpha, n_tosses, n_trials) {
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
 
-  cat("  EXPLAIN THE RESULTS\n")
+  cat("  H0 is never true, so P(H0 | rejection) = 0   and P(rejection | H0) is undefined.", "\n\n")
+  cat("  P(rejection | HA) = power and we saw the simulated probability was approximately the true power given in 1b.", "\n\n")
+  cat("  P(HA | rejection) = 1 because we (being omniscient) know the coin is always HA, so all rejections are correct.", "\n")
 }
 
 studio7_problem_3c = function() {
@@ -137,7 +176,7 @@ studio7_problem_3c = function() {
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
 
-  cat("  EXPLAIN THE DIFFERENCE\n")
+  cat("  Significance is P(rejection | H0), which does not depend on the prior probabilities of H0 and HA. We know that this is not the same as P(H0 | rejection), which does depend on the prior probabilites. Frequentists (unless they are omniscient) don't have such priors. Problems 3a and 3b show that P(H0 | rejection) can be anywhere between 0 and 1.", '\n')
 }
 
 studio7_problem_3d = function() {
@@ -147,8 +186,10 @@ studio7_problem_3d = function() {
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
 
-  cat("  SHOUT\n")
-  cat("  speak\n")
+  for (j in 1:5) {
+    cat("  THE SIGNIFICANCE IS NOT THE PROBABILITY OF AN ERROR GIVEN REJECTION!",'\n')
+  }
+  cat("  Frequentists don't compute P(Error | rejection).\n  Significance is P(rejection | H0). ", '\n')
 }
 
 
@@ -171,7 +212,24 @@ studio7_problem_4 = function(theta_HA, alpha, n_tosses, prior) {
   # Do not change the above code.
   # ********* YOUR CODE HERE ***********
 
+  crit_right = qbinom(1 - alpha, n_tosses, theta_H0) + 1
+  reject_region_right = crit_right:n_tosses
 
-  cat("  true P(H0 | rejection): ", "PRINT THE VALUE" , '\n')
-  cat("  true P(HA | rejection): ", "PRINT THE VALUE", '\n')
+  # For discrete distributions I find it easier to use dbinom and sum, so I don't make off by one errors with pbinom.
+  actual_significance_right = sum(dbinom(reject_region_right, n_tosses,theta_H0))
+  experiment_power = sum(dbinom(reject_region_right, n_tosses, theta_HA))
+
+  #------------
+  # Our variable names are too long. We alias them here to shorter names
+  sig = actual_significance_right
+  pw = experiment_power
+
+  prior_H0 = prior[1]
+  prior_HA = prior[2]
+  total_prob_reject = sig*prior_H0 + pw*prior_HA
+  true_prob_H0_given_reject = sig*prior_H0/total_prob_reject
+  true_prob_HA_given_reject = pw*prior_HA/total_prob_reject
+
+  cat("  true P(H0 | rejection): ", true_prob_H0_given_reject, '\n')
+  cat("  true P(HA | rejection): ", true_prob_HA_given_reject, '\n')
 }
